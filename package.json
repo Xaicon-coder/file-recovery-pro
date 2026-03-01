@@ -1,0 +1,66 @@
+{
+  "name": "file-recovery-pro",
+  "version": "2.0.0",
+  "description": "File Recovery Pro",
+  "main": "electron/main.js",
+  "author": "File Recovery Pro",
+  "scripts": {
+    "dev": "node scripts/dev.js",
+    "build": "node scripts/build.js"
+  },
+  "dependencies": {
+    "electron-updater": "^6.1.7",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^4.2.1",
+    "electron": "^28.2.0",
+    "electron-builder": "^24.9.1",
+    "vite": "^5.0.12",
+    "wait-on": "^7.2.0"
+  },
+  "build": {
+    "appId": "com.filerecoverypro.app",
+    "productName": "File Recovery Pro",
+    "asar": true,
+    "publish": [{
+      "provider": "github",
+      "owner": "SOSTITUISCI_USERNAME",
+      "repo": "file-recovery-pro"
+    }],
+    "files": [
+      "dist/**",
+      "electron/**",
+      "node_modules/electron-updater/**"
+    ],
+    "extraMetadata": { "main": "electron/main.js" },
+    "win": {
+      "target": [
+        { "target": "nsis", "arch": ["x64"] },
+        { "target": "portable", "arch": ["x64"] }
+      ],
+      "requestedExecutionLevel": "requireAdministrator",
+      "icon": "public/icon.ico"
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "File Recovery Pro",
+      "deleteAppDataOnUninstall": true,
+      "installerIcon": "public/icon.ico",
+      "uninstallerIcon": "public/icon.ico"
+    },
+    "portable": {
+      "artifactName": "${productName}_v${version}_Portable.exe"
+    },
+    "directories": {
+      "output": "release",
+      "buildResources": "public"
+    },
+    "artifactName": "${productName}_v${version}_Setup.exe"
+  }
+}
