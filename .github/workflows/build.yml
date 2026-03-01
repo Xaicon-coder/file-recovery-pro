@@ -19,7 +19,6 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: npm
 
       - name: Cache Electron binaries
         uses: actions/cache@v4
@@ -27,10 +26,10 @@ jobs:
           path: |
             ~/AppData/Local/electron-builder/cache
             ~/AppData/Local/electron/Cache
-          key: electron-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
+          key: electron-${{ runner.os }}-${{ hashFiles('package.json') }}
           restore-keys: electron-${{ runner.os }}-
 
-      - run: npm ci
+      - run: npm install
 
       - name: Crea icona base
         shell: pwsh
