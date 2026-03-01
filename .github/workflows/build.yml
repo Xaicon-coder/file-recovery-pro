@@ -1,63 +1,47 @@
-{
-  "name": "file-recovery-pro",
-  "version": "2.0.0",
-  "description": "File Recovery Pro",
-  "main": "electron/main.js",
-  "author": "File Recovery Pro",
-  "scripts": {
-    "dev": "node scripts/dev.js",
-    "build": "node scripts/build.js"
-  },
-  "dependencies": {
-    "electron-updater": "^6.1.7",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0"
-  },
-  "devDependencies": {
-    "@vitejs/plugin-react": "^4.2.1",
-    "electron": "^28.2.0",
-    "electron-builder": "^24.9.1",
-    "vite": "^5.0.12",
-    "wait-on": "^7.2.0"
-  },
-  "build": {
-    "appId": "com.filerecoverypro.app",
-    "productName": "File Recovery Pro",
-    "asar": true,
-    "publish": [{
-      "provider": "github",
-      "owner": "SOSTITUISCI_USERNAME",
-      "repo": "file-recovery-pro"
-    }],
-    "files": [
-      "dist/**",
-      "electron/**",
-      "node_modules/electron-updater/**"
-    ],
-    "extraMetadata": { "main": "electron/main.js" },
-    "win": {
-      "target": [
-        { "target": "nsis", "arch": ["x64"] },
-        { "target": "portable", "arch": ["x64"] }
-      ],
-      "requestedExecutionLevel": "requireAdministrator"
-    },
-    "nsis": {
-      "oneClick": false,
-      "perMachine": false,
-      "allowToChangeInstallationDirectory": true,
-      "createDesktopShortcut": true,
-      "createStartMenuShortcut": true,
-      "shortcutName": "File Recovery Pro",
-      "deleteAppDataOnUninstall": true
-    },
-    "portable": {
-      "artifactName": "${productName}_v${version}_Portable.exe"
-    },
-    "directories": {
-      "output": "release",
-      "buildResources": "public"
-    },
-    "artifactName": "${productName}_v${version}_Setup.exe"
-  }
-}
+name: Build & Release
+
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: windows-latest
+    timeout-minutes: 20
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Cache Electron binaries
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/AppData/Local/electron-builder/cache
+            ~/AppData/Local/electron/Cache
+          key: electron-${{ runner.os }}-${{ hashFiles('package.json') }}
+          restore-keys: electron-${{ runner.os }}-
+
+      - run: npm install
+
+      - name: Build UI
+        run: npx vite build
+
+      - name: Build installer
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          CSC_IDENTITY_AUTO_DISCOVERY: false
+        run: npx electron-builder --win --publish always
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: installer
+          path: release/*.exe
+          retention-days: 7
