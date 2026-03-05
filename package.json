@@ -1,19 +1,17 @@
 {
   "name": "file-recovery-pro",
-  "version": "2.1.0",
-  "description": "File Recovery Pro - Ultra UI Edition",
+  "version": "2.5.0",
+  "description": "File Recovery Pro",
   "main": "electron/main.js",
-  "author": "File Recovery Pro",
+  "author": "Xaicon-coder",
   "scripts": {
-    "dev": "vite",
-    "build": "vite build && electron-builder"
+    "dev": "node scripts/dev.js",
+    "build": "node scripts/build.js"
   },
   "dependencies": {
     "electron-updater": "^6.1.7",
     "react": "^18.2.0",
-    "react-dom": "^18.2.0",
-    "framer-motion": "^10.16.4",
-    "lucide-react": "^0.292.0"
+    "react-dom": "^18.2.0"
   },
   "devDependencies": {
     "@vitejs/plugin-react": "^4.2.1",
@@ -36,21 +34,24 @@
     "files": [
       "dist/**",
       "electron/**",
-      "public/**"
+      "node_modules/electron-updater/**"
     ],
     "extraMetadata": {
       "main": "electron/main.js"
     },
     "win": {
-      "icon": "public/icon.ico",
       "target": [
         {
           "target": "nsis",
-          "arch": ["x64"]
+          "arch": [
+            "x64"
+          ]
         },
         {
           "target": "portable",
-          "arch": ["x64"]
+          "arch": [
+            "x64"
+          ]
         }
       ],
       "requestedExecutionLevel": "requireAdministrator"
@@ -72,5 +73,6 @@
       "buildResources": "public"
     },
     "artifactName": "${productName}_v${version}_Setup.exe"
-  }
+  },
+  "homepage": "https://github.com/Xaicon-coder/file-recovery-pro"
 }

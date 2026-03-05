@@ -5,37 +5,77 @@
   <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
   <title>File Recovery Pro</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;600;700&family=Share+Tech+Mono&family=Rajdhani:wght@400;500;600&display=swap" rel="stylesheet">
   <style>
-    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-    :root{
-      --bg0:#07090d; --bg1:#0c1018; --bg2:#131924; --bg3:#192030; --bg4:#1f2840;
-      --border:rgba(255,255,255,0.055); --border2:rgba(255,255,255,0.10);
-      --amber:#f0a500; --amber-dim:#b87d00; --amber-bg:rgba(240,165,0,0.09); --amber-glow:rgba(240,165,0,0.22);
-      --cyan:#00cce8;  --cyan-bg:rgba(0,204,232,0.08);  --cyan-glow:rgba(0,204,232,0.18);
-      --green:#0fd98a; --green-bg:rgba(15,217,138,0.08); --green-glow:rgba(15,217,138,0.18);
-      --purple:#a78bfa; --purple-bg:rgba(167,139,250,0.08);
-      --red:#f05050;   --red-bg:rgba(240,80,80,0.08);    --red-glow:rgba(240,80,80,0.20);
-      --t0:#dde4ed; --t1:#7a8898; --t2:#384252; --t3:#242e3e;
-      --mono:'IBM Plex Mono',monospace; --sans:'Inter',sans-serif;
-    }
-    html,body,#root{width:100%;height:100%;overflow:hidden}
-    body{background:var(--bg0);color:var(--t0);font-family:var(--sans);-webkit-font-smoothing:antialiased}
-    ::-webkit-scrollbar{width:4px} ::-webkit-scrollbar-track{background:transparent}
-    ::-webkit-scrollbar-thumb{background:rgba(255,255,255,.07);border-radius:4px}
-    button{cursor:pointer;font-family:var(--sans);border:none;background:none;color:inherit}
-    input,select{font-family:var(--sans);color:inherit} *{outline:none}
-    ::selection{background:rgba(240,165,0,.2);color:var(--t0)}
+    *, *::before, *::after { box-sizing:border-box; margin:0; padding:0; }
 
-    @keyframes fadeIn  {from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:translateY(0)}}
-    @keyframes fadeUp  {from{opacity:0;transform:translateY(5px)}  to{opacity:1;transform:translateY(0)}}
-    @keyframes pulse   {0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.2;transform:scale(.65)}}
-    @keyframes spin    {to{transform:rotate(360deg)}}
-    @keyframes shimmer {from{transform:translateX(-100%)} to{transform:translateX(300%)}}
-    @keyframes glow    {0%,100%{opacity:.6} 50%{opacity:1}}
-    @keyframes float   {0%,100%{transform:translateY(0)} 50%{transform:translateY(-3px)}}
-    @keyframes dash    {to{stroke-dashoffset:-24}}
-    @keyframes borderP {0%,100%{border-color:rgba(240,165,0,.15)} 50%{border-color:rgba(240,165,0,.5)}}
+    :root {
+      /* backgrounds */
+      --void:#000a03; --bg0:#010d05; --bg1:#021508; --bg2:#041f0d; --bg3:#062a11;
+      /* phosphor green */
+      --p0:#00ff41; --p1:#00cc34; --p2:#009926;
+      --p-glow:rgba(0,255,65,.22); --p-bg:rgba(0,255,65,.07);
+      /* amber */
+      --a0:#ffcc00; --a1:#cc9900;
+      --a-glow:rgba(255,204,0,.2); --a-bg:rgba(255,204,0,.07);
+      /* red */
+      --r0:#ff2244; --r-glow:rgba(255,34,68,.22);
+      /* cyan */
+      --c0:#00ffee; --c-glow:rgba(0,255,238,.18);
+      /* text */
+      --t0:#c8ffda; --t1:#5a8f6a; --t2:#2a5035; --t3:#0f2018;
+      /* borders */
+      --b0:rgba(0,255,65,.07); --b1:rgba(0,255,65,.15); --b2:rgba(0,255,65,.30);
+      /* fonts */
+      --display:'Chakra Petch',sans-serif;
+      --mono:'Share Tech Mono',monospace;
+      --ui:'Rajdhani',sans-serif;
+    }
+
+    html, body, #root { width:100%; height:100%; overflow:hidden; }
+
+    body {
+      background:var(--void);
+      color:var(--t0);
+      font-family:var(--ui);
+      -webkit-font-smoothing:antialiased;
+    }
+
+    /* CRT scanlines */
+    body::before {
+      content:'';
+      position:fixed; inset:0;
+      background:repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,.08) 2px, rgba(0,0,0,.08) 4px);
+      pointer-events:none; z-index:9998;
+    }
+
+    /* Vignette */
+    body::after {
+      content:'';
+      position:fixed; inset:0;
+      background:radial-gradient(ellipse at center, transparent 40%, rgba(0,0,0,.55) 100%);
+      pointer-events:none; z-index:9997;
+    }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar { width:3px; }
+    ::-webkit-scrollbar-track { background:transparent; }
+    ::-webkit-scrollbar-thumb { background:var(--b2); border-radius:2px; }
+
+    button { cursor:pointer; font-family:var(--ui); border:none; background:none; color:inherit; }
+    input, select { font-family:var(--ui); color:inherit; }
+    * { outline:none; }
+    ::selection { background:rgba(0,255,65,.22); color:var(--t0); }
+
+    /* Global keyframes — referenced by all components */
+    @keyframes spin     { to { transform:rotate(360deg); } }
+    @keyframes ping     { 0%{transform:scale(1);opacity:.8} 100%{transform:scale(2.8);opacity:0} }
+    @keyframes fadeIn   { from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:translateY(0)} }
+    @keyframes rowSlide { from{opacity:0;transform:translateX(10px)} to{opacity:1;transform:translateX(0)} }
+    @keyframes shimmer  { from{transform:translateX(-100%)} to{transform:translateX(300%)} }
+    @keyframes scanH    { 0%{top:-3px;opacity:.8} 65%{opacity:.4} 100%{top:101%;opacity:0} }
+    @keyframes pulse    { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.1;transform:scale(.5)} }
+    @keyframes glowP    { 0%,100%{box-shadow:0 0 5px var(--p-glow)} 50%{box-shadow:0 0 18px var(--p-glow),0 0 36px var(--p-glow)} }
   </style>
 </head>
 <body>
