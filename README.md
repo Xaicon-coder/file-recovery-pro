@@ -36,20 +36,6 @@ L'algoritmo di scansione opera su 4 livelli di profondità per massimizzare le p
 
 ---
 
-## 🛠️ INSTALLAZIONE & DEPLOY
-
-### Prerequisiti
-* **Node.js** ≥ 16
-* **Privilegi di Amministratore** (necessari per VSS/USN)
-
-### Setup Sviluppatore
-```bash
-# Clona il nucleo del progetto
-git clone [https://github.com/Xaicon/FileRecoveryPro.git](https://github.com/Xaicon/FileRecoveryPro.git)
-cd FileRecoveryPro
-
-# Installa le dipendenze core
-npm install
 
 # Lancia l'interfaccia in modalità Dev
 npm run dev
