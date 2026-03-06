@@ -10,6 +10,9 @@ const Recovery = require('./recovery');
 const { exportCSV, exportJSON, exportStats } = require('./export');
 const { getLogger } = require('./logger');
 
+Menu.setApplicationMenu(null);
+const IS_DEV = process.env.NODE_ENV === 'development';
+
 // Inizializza logger
 const logger = getLogger({
   level: IS_DEV ? 'DEBUG' : 'INFO',
@@ -19,9 +22,6 @@ const logger = getLogger({
 
 // Cleanup logs vecchi all'avvio
 logger.cleanupOldLogs(30);
-
-Menu.setApplicationMenu(null);
-const IS_DEV = process.env.NODE_ENV === 'development';
 
 let win;
 
