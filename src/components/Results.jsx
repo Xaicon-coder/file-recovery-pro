@@ -61,10 +61,20 @@ export default function Results({ files, sel, setSel, dest, setDest, onRecover, 
     if (srcFilt.length) out = out.filter(f => srcFilt.includes(f.source));
     if (typFilt.length) out = out.filter(f => typFilt.includes(f.type));
     if (q)              out = out.filter(f => f.name.toLowerCase().includes(q) || (f.originalPath||'').toLowerCase().includes(q));
-    return [...out].sort((a, b) => {
+    
+    const sorted = [...out].sort((a, b) => {
       const va = a[sort.k] ?? '', vb = b[sort.k] ?? '';
       return (va < vb ? -1 : va > vb ? 1 : 0) * sort.dir;
     });
+    
+    // 🔥 CRITICAL FIX: Limita a 300 file MAX per evitare freeze
+    // Mostra ultimi 300 così vedi i più recenti durante scan progressivo
+    const MAX_VISIBLE = 300;
+    if (sorted.length > MAX_VISIBLE) {
+      return sorted.slice(-MAX_VISIBLE);
+    }
+    
+    return sorted;
   }, [files, srcFilt, typFilt, search, sort.k, sort.dir]);
 
   // Contatori — useMemo per non ricalcolare su ogni render
@@ -93,6 +103,25 @@ export default function Results({ files, sel, setSel, dest, setDest, onRecover, 
 
       {/* Toolbar */}
       <div style={{ flexShrink:0, padding:'9px 14px', borderBottom:'1px solid var(--b0)', display:'flex', alignItems:'center', gap:10, background:'rgba(1,10,4,.8)', backdropFilter:'blur(8px)' }}>
+        
+        {/* Warning se troppi file */}
+        {files.length > 300 && (
+          <div style={{ 
+            padding:'5px 10px', 
+            background:'rgba(255,204,0,.08)', 
+            border:'1px solid rgba(255,204,0,.25)', 
+            borderRadius:4,
+            display:'flex',
+            alignItems:'center',
+            gap:6
+          }}>
+            <span style={{ fontSize:12 }}>⚠️</span>
+            <span style={{ fontFamily:'var(--mono)', fontSize:8, color:'var(--a0)', letterSpacing:'.06em' }}>
+              Ultimi 300/{files.length} file · Usa FILTRI per raffinare
+            </span>
+          </div>
+        )}
+        
         {/* Ricerca */}
         <div style={{ flex:1, display:'flex', alignItems:'center', gap:7, padding:'5px 10px', background:'rgba(0,255,65,.03)', border:'1px solid var(--b0)', borderRadius:5 }}>
           <svg width="11" height="11" viewBox="0 0 11 11" fill="none" stroke="var(--t2)" strokeWidth="1.3" strokeLinecap="round">

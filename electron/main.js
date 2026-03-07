@@ -43,8 +43,8 @@ function createWindow() {
 
   win.once('ready-to-show', () => {
     win.show();
-    // Auto-check aggiornamenti 6 secondi dopo avvio (solo produzione)
-    if (!IS_DEV) setTimeout(() => autoUpdater.checkForUpdates().catch(() => {}), 6000);
+    // Auto-updater DISABILITATO - causava errori 404 GitHub
+    // if (!IS_DEV) setTimeout(() => autoUpdater.checkForUpdates().catch(() => {}), 6000);
   });
 
   IS_DEV
