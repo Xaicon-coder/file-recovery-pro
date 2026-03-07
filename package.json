@@ -1,7 +1,7 @@
 {
   "name": "file-recovery-pro",
-  "version": "3.0.3",
-  "description": "FileRecoveryPro - Professional File Recovery with Performance Optimizations",
+  "version": "3.0.5",
+  "description": "FileRecoveryPro - Professional File Recovery with Performance Optimizations + USB Support",
   "main": "electron/main.js",
   "author": "Xaicon-coder",
   "scripts": {

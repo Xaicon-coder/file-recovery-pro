@@ -199,7 +199,24 @@ function fallbackDrives() {
   const found = [];
   for (const l of 'CDEFGHIJKLMNOPQRSTUVWXYZ') {
     const p = l + ':\\';
-    if (exists(p)) found.push({ id:l+':', label:l+': Drive', path:p, fs:'NTFS', total:0, free:0, type:'fixed' });
+    if (exists(p)) {
+      // Prova a determinare tipo e filesystem
+      let type = 'fixed';
+      let fs = 'NTFS';
+      
+      if (IS_WIN) {
+        try {
+          // Check se è removibile con WMIC
+          const out = safeExec(`wmic logicaldisk where "DeviceID='${l}:'" get DriveType,FileSystem /format:csv`, 3000);
+          if (out.includes('2,')) type = 'removable'; // DriveType 2 = removibile
+          if (out.includes('FAT32')) fs = 'FAT32';
+          else if (out.includes('exFAT')) fs = 'exFAT';
+          else if (out.includes('FAT')) fs = 'FAT';
+        } catch {}
+      }
+      
+      found.push({ id:l+':', label:l+': Drive', path:p, fs, total:0, free:0, type });
+    }
   }
   return found.length ? found : [{ id:'C:', label:'C:', path:'C:\\', fs:'NTFS', total:0, free:0, type:'fixed' }];
 }
@@ -325,6 +342,23 @@ async function runScan(opts, emit, isStopped) {
   
   // Deduplication su path fisico del file sorgente
   const seen = new Set();
+  
+  // 🆕 Detecta tipo drive e filesystem
+  let driveType = 'fixed';
+  let filesystem = 'NTFS';
+  if (IS_WIN && opts.drive) {
+    try {
+      const letter = opts.drive.replace(/[:\\\/]/g, '');
+      const out = safeExec(`wmic logicaldisk where "DeviceID='${letter}:'" get DriveType,FileSystem /format:csv`, 3000);
+      if (out.includes('2,')) driveType = 'removable';
+      if (out.includes('FAT32')) filesystem = 'FAT32';
+      else if (out.includes('exFAT')) filesystem = 'exFAT';
+      else if (out.includes('FAT')) filesystem = 'FAT';
+    } catch {}
+  }
+  
+  const isUSB = driveType === 'removable';
+  const isNTFS = filesystem === 'NTFS';
 
   function add(f) {
     const key = f.path.toLowerCase();
@@ -338,6 +372,11 @@ async function runScan(opts, emit, isStopped) {
     progressThrottler.update(phase, pct, msg, batchMgr.total);
 
   try {
+    // Info USB
+    if (isUSB) {
+      progress('info', 0, `🔌 Dispositivo USB rilevato (${filesystem}) - ottimizzando scan...`);
+    }
+    
     // ── FASE 1: $Recycle.Bin ─────────────────────────────────────────────────
     progress('recycle', 1, 'Lettura Cestino di sistema ($Recycle.Bin)...');
     const r0 = batchMgr.total;
@@ -351,7 +390,8 @@ async function runScan(opts, emit, isStopped) {
     }
 
     // ── FASE 2: Volume Shadow Copies (VSS) ───────────────────────────────────
-    if (IS_WIN && opts.isAdmin && opts.mode !== 'quick') {
+    // Skip su USB (VSS non supportato su dispositivi removibili)
+    if (IS_WIN && opts.isAdmin && opts.mode !== 'quick' && !isUSB && isNTFS) {
       const r1 = batchMgr.total;
       progress('vss', 1, 'Ricerca Volume Shadow Copies (snapshot)...');
       await scanVSS(opts.drive, add, isStopped, (p, m) => progress('vss', p, m));
@@ -362,6 +402,8 @@ async function runScan(opts, emit, isStopped) {
         progressThrottler.destroy();
         return emit({ type: 'done', total: batchMgr.total });
       }
+    } else if (isUSB && opts.mode !== 'quick') {
+      progress('vss', 100, 'Volume Shadow Copies: non disponibile su USB');
     }
 
     // ── FASE 3: Cartelle utente ───────────────────────────────────────────────
@@ -390,12 +432,15 @@ async function runScan(opts, emit, isStopped) {
     }
 
     // ── FASE 5: USN Change Journal ────────────────────────────────────────────
-    if (opts.mode === 'full' && IS_WIN && opts.isAdmin) {
+    // Skip se non NTFS (USN Journal solo su NTFS)
+    if (opts.mode === 'full' && IS_WIN && opts.isAdmin && isNTFS) {
       const r4 = batchMgr.total;
       progress('usn', 1, 'Analisi USN Change Journal (NTFS)...');
       await scanUSNJournal(opts.drive, add, isStopped, (p, m) => progress('usn', p, m));
       batchMgr.flush();
       progress('usn', 100, `Journal NTFS: ${batchMgr.total - r4} riferimenti aggiuntivi`);
+    } else if (opts.mode === 'full' && !isNTFS) {
+      progress('usn', 100, `USN Journal: non disponibile su ${filesystem}`);
     }
 
     // Cleanup e completamento

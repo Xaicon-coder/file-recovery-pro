@@ -152,8 +152,17 @@ export default function App() {
   // Flush file buffer ogni 80ms → max ~12 re-render/sec durante scansione
   const flushFiles = useCallback(() => {
     if (!fileBufferRef.current.length) return;
-    const batch = fileBufferRef.current.splice(0);
+    
+    // Limita batch size per evitare setState enormi
+    const MAX_BATCH = 200;
+    const batch = fileBufferRef.current.splice(0, MAX_BATCH);
+    
     setScan(s => ({ ...s, files: [...s.files, ...batch] }));
+    
+    // Se ci sono ancora file nel buffer, schedula altro flush
+    if (fileBufferRef.current.length > 0) {
+      setTimeout(flushFiles, 0);
+    }
   }, []);
 
   const startScan = useCallback(async () => {
@@ -165,7 +174,7 @@ export default function App() {
     setScan({ phase:'starting', pct:0, msg:'Inizializzazione...', files:[], done:false });
     setSel([]);
     setView('scanning');
-
+    
     // Log inizio scan
     const startTime = Date.now();
     if (IS_EL) await API.log.scanStart({ ...opts, isAdmin: sysInfo?.isAdmin });
@@ -179,12 +188,18 @@ export default function App() {
       else if (ev.type === 'files_batch') {
         // Nuovo sistema batch - aggiungi direttamente al buffer
         fileBufferRef.current.push(...ev.files);
+        
+        // 🆕 Passa a Results non appena arrivano primi file (mostra progressivo)
+        if (fileBufferRef.current.length >= 20 && view === 'scanning') {
+          flushFiles(); // Flush immediato
+          setView('results'); // Mostra results subito
+        }
       }
       else if (ev.type === 'done') {
         // Flush finale garantito
         flushFiles();
         clearInterval(flushTimerRef.current);
-        setScan(s => ({ ...s, done:true, pct:100 }));
+        setScan(s => ({ ...s, done:true, pct:100, msg:`Completato — ${ev.total || 0} file trovati` }));
         
         // Log completamento e notifica
         const duration = Date.now() - startTime;
@@ -196,12 +211,15 @@ export default function App() {
           });
         }
         
-        setTimeout(() => setView('results'), 500);
+        // Se non siamo già in results (pochi file), vai ora
+        if (view !== 'results') {
+          setTimeout(() => setView('results'), 300);
+        }
       }
     });
     cleanScanRef.current = cleanup;
     await API.scan.start({ ...opts, isAdmin: sysInfo?.isAdmin });
-  }, [opts, sysInfo, flushFiles]);
+  }, [opts, sysInfo, flushFiles, view]);
 
   const stopScan = useCallback(async () => {
     await API.scan.stop();

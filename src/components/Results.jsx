@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useCallback } from 'react';
+import React, { useState, useMemo, useCallback, useEffect } from 'react';
 import ExportPanel from './ExportPanel';
 
 const fmtSize = b => !b ? '0 B' : b>=1e9 ? (b/1e9).toFixed(1)+' GB' : b>=1e6 ? (b/1e6).toFixed(0)+' MB' : b>=1e3 ? (b/1e3).toFixed(0)+' KB' : b+' B';
@@ -199,7 +199,7 @@ export default function Results({ files, sel, setSel, dest, setDest, onRecover, 
             ))}
           </div>
 
-          {/* Righe */}
+          {/* Righe - rendering progressivo durante scan */}
           <div style={{ flex:1, overflowY:'auto' }}>
             {visible.length === 0 && (
               <div style={{ padding:'28px 18px', fontFamily:'var(--mono)', fontSize:9, color:'var(--t2)', letterSpacing:'.12em', textAlign:'center' }}>
