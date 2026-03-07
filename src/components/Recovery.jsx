@@ -124,9 +124,25 @@ export default function Recovery({ rec, files, onOpen, onReset }) {
         </div>
       </div>
 
-      {/* Log */}
+      {/* Log - max 100 righe per evitare freeze */}
       <div style={{ flex:1, overflowY:'auto', position:'relative', zIndex:1 }}>
-        {log.map(entry => {
+        {log.length > 100 && (
+          <div style={{ 
+            padding:'8px 16px', 
+            background:'rgba(255,204,0,.08)', 
+            borderBottom:'1px solid rgba(255,204,0,.2)',
+            display:'flex',
+            alignItems:'center',
+            gap:8
+          }}>
+            <span style={{ fontSize:11 }}>⚠️</span>
+            <span style={{ fontFamily:'var(--mono)', fontSize:8, color:'var(--a0)', letterSpacing:'.06em' }}>
+              Mostrando ultimi 100 di {log.length} file (per performance)
+            </span>
+          </div>
+        )}
+        
+        {log.slice(-100).map(entry => {
           const f = files.find(f => f.id === entry.id);
           const name = f?.name || entry.id;
           return (

@@ -5,10 +5,9 @@ const STATUS = {
   scanning: { label:'SCANNING',   col:'var(--p0)',  pulse:true  },
   results:  { label:'ANALISI',    col:'var(--a0)',  pulse:false },
   recovery: { label:'RIPRISTINO', col:'#00ffee',    pulse:true  },
-  updates:  { label:'UPDATE',     col:'var(--a0)',  pulse:false },
 };
 
-export default function TitleBar({ api, version, update, onInstall, view, onUpdates }) {
+export default function TitleBar({ api, version, update, onInstall, view }) {
   const isDl    = update?.event === 'downloading' || update?.event === 'progress';
   const isReady = update?.event === 'ready';
   const pct     = update?.pct ?? 0;
@@ -70,17 +69,6 @@ export default function TitleBar({ api, version, update, onInstall, view, onUpda
             <path d="M4.5 1v5M2 4.5l2.5 2.5L7 4.5M1 8h7" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/>
           </svg>
           v{update.version} — installa
-        </button>
-      )}
-
-      {/* UPD shortcut (idle) */}
-      {!isDl && !isReady && (
-        <button data-drag="false" onClick={onUpdates} title="Aggiornamenti"
-          style={{ display:'flex', alignItems:'center', gap:5, marginLeft:10, padding:'3px 8px', border:'1px solid var(--b0)', borderRadius:3, fontFamily:'var(--mono)', fontSize:7.5, color:'var(--t2)', cursor:'pointer', background:'transparent', letterSpacing:'.1em', transition:'border-color .12s, color .12s' }}>
-          <svg width="9" height="9" viewBox="0 0 11 11" fill="none" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round">
-            <path d="M10 5.5A4.5 4.5 0 115.5 10"/><path d="M10 2.5v3H7"/>
-          </svg>
-          UPD
         </button>
       )}
 

@@ -1,7 +1,7 @@
 {
   "name": "file-recovery-pro",
-  "version": "3.0.6",
-  "description": "FileRecoveryPro - Professional File Recovery (Auto-updater disabled, Max 300 files render)",
+  "version": "3.0.7",
+  "description": "FileRecoveryPro - Professional File Recovery (Recovery log limited, Updates removed)",
   "main": "electron/main.js",
   "author": "Xaicon-coder",
   "scripts": {

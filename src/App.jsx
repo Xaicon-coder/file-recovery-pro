@@ -5,7 +5,7 @@ import Setup    from './components/Setup';
 import Scanning from './components/Scanning';
 import Results  from './components/Results';
 import Recovery from './components/Recovery';
-import Updates  from './components/Updates';
+// Updates rimosso - non necessario e causava errori
 
 const IS_EL = typeof window !== 'undefined' && !!window?.api;
 
@@ -325,21 +325,18 @@ export default function App() {
         update={update}
         onInstall={() => API.updater.install()}
         view={view}
-        onUpdates={() => setView('updates')}
       />
       <div style={{ display:'flex', flex:1, overflow:'hidden' }}>
         <Sidebar
           view={view}
           setView={setView}
           hasResults={scan.files.length > 0}
-          updateReady={update?.event === 'ready'}
         />
         <main style={{ flex:1, overflow:'hidden', display:'flex', flexDirection:'column' }}>
           {view === 'setup'    && <Setup    info={sysInfo} drives={drives} opts={opts} setOpts={setOpts} onStart={startScan}/>}
           {view === 'scanning' && <Scanning scan={scan} onStop={stopScan}/>}
           {view === 'results'  && <Results  files={scan.files} sel={sel} setSel={setSel} dest={dest} setDest={setDest} onRecover={startRecovery} onReset={reset}/>}
           {view === 'recovery' && <Recovery rec={rec} files={scan.files.filter(f => sel.includes(f.id))} onOpen={handleOpenDir} onReset={reset}/>}
-          {view === 'updates'  && <Updates  update={update} api={API} version={sysInfo?.version} onBack={() => setView('setup')}/>}
         </main>
       </div>
     </div>

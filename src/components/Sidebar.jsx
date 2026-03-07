@@ -4,10 +4,10 @@ const NAV = [
   { id:'setup',    label:'SCAN',   d:'M12 2a10 10 0 100 20A10 10 0 0012 2zm0 4a6 6 0 010 12A6 6 0 0112 6zm0 3a3 3 0 000 6 3 3 0 000-6z' },
   { id:'results',  label:'FILES',  d:'M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8zM14 2v6h6M16 13H8M16 17H8M10 9H8' },
   { id:'recovery', label:'RIPRIST',d:'M12 2v8h8M12 2L5 2a2 2 0 00-2 2v16a2 2 0 002 2h14a2 2 0 002-2V10l-6-8zM8 18l4-4 4 4M12 14v6' },
-  { id:'updates',  label:'UPDATE', d:'M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12' },
+  // Updates rimosso - causava errori e non necessario
 ];
 
-export default function Sidebar({ view, setView, hasResults, updateReady }) {
+export default function Sidebar({ view, setView, hasResults }) {
   return (
     <aside style={{ width:62, flexShrink:0, background:'rgba(1,12,4,.95)', borderRight:'1px solid var(--b0)', display:'flex', flexDirection:'column', alignItems:'center', paddingTop:4, position:'relative', overflow:'hidden', zIndex:10 }}>
 
@@ -38,9 +38,6 @@ export default function Sidebar({ view, setView, hasResults, updateReady }) {
                 style={{ filter:active ? 'drop-shadow(0 0 5px var(--p0))' : 'none', transition:'all .14s' }}>
                 <path d={n.d}/>
               </svg>
-              {n.id === 'updates' && updateReady && !active && (
-                <div style={{ position:'absolute', top:-3, right:-3, width:7, height:7, borderRadius:'50%', background:'var(--a0)', boxShadow:'0 0 10px var(--a-glow)', animation:'glowP 1.8s ease infinite' }}/>
-              )}
               {n.id === 'results' && hasResults && !active && (
                 <div style={{ position:'absolute', top:-3, right:-3, width:6, height:6, borderRadius:'50%', background:'var(--a0)', boxShadow:'0 0 7px var(--a-glow)' }}/>
               )}
